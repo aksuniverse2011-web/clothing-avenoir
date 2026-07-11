@@ -189,6 +189,7 @@
   .product:hover .view-product{opacity:1;}
   .product h3{margin-top:22px;font-size:14px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;}
   .product .status{margin-top:8px;font-size:10px;letter-spacing:.2em;color:var(--green-dim);text-transform:uppercase;}
+  .product .price{margin-top:6px;font-size:13px;font-weight:600;color:var(--white);}
   .product{cursor:pointer;}
   .product .frame.placeholder{
     display:flex;align-items:center;justify-content:center;
@@ -239,9 +240,10 @@
   .pm-body{padding:44px;}
   .pm-cat{font-size:11px;letter-spacing:.25em;color:var(--green-dim);text-transform:uppercase;}
   .pm-name{font-size:26px;margin-top:12px;text-transform:uppercase;letter-spacing:.02em;font-weight:800;}
+  .pm-price{margin-top:10px;font-size:18px;font-weight:700;color:var(--green);}
   .pm-status{margin-top:10px;font-size:11px;letter-spacing:.15em;color:var(--gray);text-transform:uppercase;}
   .pm-label{margin-top:32px;font-size:11px;letter-spacing:.2em;color:var(--gray);text-transform:uppercase;}
-  .size-row{display:flex;gap:10px;margin-top:14px;}
+  .size-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
   .size-btn{
     width:48px;height:48px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
     font-size:12px;letter-spacing:.05em;cursor:pointer;transition:border-color .25s ease,color .25s ease;color:var(--white);
@@ -282,6 +284,22 @@
   .cart-item .ci-remove{cursor:pointer;color:var(--gray);font-size:18px;padding:4px 8px;transition:color .2s ease;}
   .cart-item .ci-remove:hover{color:var(--accent,#ff2b2b);}
   .cart-empty{color:var(--gray);font-size:13px;padding:20px 0;text-align:center;}
+  .cart-total{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);text-align:right;font-size:15px;font-weight:700;color:var(--green);}
+
+  /* contact modal */
+  .contact-modal{max-width:480px;padding:44px;}
+  .contact-modal h3{font-size:22px;text-transform:uppercase;letter-spacing:.03em;margin-bottom:26px;}
+  .contact-list{display:flex;flex-direction:column;gap:2px;}
+  .contact-row{
+    display:flex;justify-content:space-between;align-items:center;gap:16px;
+    padding:16px 4px;border-bottom:1px solid var(--line);
+    transition:background .2s ease;
+  }
+  .contact-row:hover{background:rgba(57,255,20,.05);}
+  .contact-row:last-child{border-bottom:none;}
+  .contact-label{font-size:11px;letter-spacing:.15em;color:var(--gray);text-transform:uppercase;}
+  .contact-value{font-size:14px;font-weight:600;color:var(--white);}
+  .contact-row:hover .contact-value{color:var(--green);}
   .cart-footer{margin-top:26px;border-top:1px solid var(--line);padding-top:22px;}
   .cart-note{font-size:12px;line-height:1.7;color:#c7c9c3;margin-bottom:18px;}
   .cart-note a{color:var(--green);border-bottom:1px solid var(--green-dim);}
@@ -295,29 +313,6 @@
   }
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  /* LOOKBOOK */
-  .lookbook{position:relative;text-align:center;padding:150px 4vw 0;background:var(--black);}
-  .lookbook h2{font-size:clamp(48px,10vw,140px);line-height:.9;letter-spacing:.01em;}
-  .lookbook h2 .g1{background:linear-gradient(180deg,#e9e9e9,#8a8a8a);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .lookbook h2 .g2{background:linear-gradient(180deg,#9fff7a,#28c400);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .lookbook .vol{margin-top:14px;font-size:13px;letter-spacing:.3em;color:var(--green);text-transform:uppercase;}
-  .lookbook-photo{
-    position:relative;margin-top:70px;height:80vh;min-height:520px;
-    background:url('assets/lookbook_skyline.jpg') center/cover no-repeat;
-  }
-  .lookbook-photo::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.85));}
-  .lookbook-photo .overlay{
-    position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:center;
-    padding:0 8vw;text-align:left;max-width:600px;
-  }
-  .lookbook-photo h3{font-size:clamp(34px,5vw,58px);line-height:1;}
-  .lookbook-photo h3 .g2{background:linear-gradient(180deg,#9fff7a,#28c400);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .lookbook-photo .btn{
-    display:inline-block;margin-top:34px;padding:16px 34px;background:var(--green);color:#000;
-    font-size:12px;letter-spacing:.15em;text-transform:uppercase;font-weight:700;width:max-content;
-    transition:transform .3s ease;
-  }
-  .lookbook-photo .btn:hover{transform:translateY(-2px);}
 
   /* reveal */
   .reveal{position:relative;z-index:2;opacity:0;transform:translateY(40px);transition:opacity .9s ease, transform .9s ease;}
@@ -381,7 +376,6 @@
   <nav class="links">
     <a href="index.html#drop">New Drop</a>
     <a href="collections.html">Collections</a>
-    <a href="index.html#lookbook">Lookbook</a>
     <a href="index.html#about">About</a>
   </nav>
   <div class="cart" id="cartTrigger" role="button" aria-label="Open cart">
@@ -429,7 +423,6 @@
         <h4>Explore</h4>
         <a href="index.html#drop">New Drop</a>
         <a href="collections.html">Collections</a>
-        <a href="index.html#lookbook">Lookbook</a>
         <a href="index.html#about">About</a>
       </div>
       <div class="footer-col">
@@ -437,7 +430,7 @@
         <a href="https://www.instagram.com/avenoir_clothing?igsh=MWFnanBlMDN2bWRk" target="_blank" rel="noopener">Instagram</a>
         <a href="#">Twitter</a>
         <a href="#">Discord</a>
-        <a href="#">Contact</a>
+        <a href="#" id="contactTrigger">Contact</a>
       </div>
     </div>
   </div>
@@ -459,6 +452,7 @@
       <div class="pm-body">
         <div class="pm-cat" id="pmCat"></div>
         <div class="pm-name" id="pmName"></div>
+        <div class="pm-price" id="pmPrice"></div>
         <div class="pm-status" id="pmStatus"></div>
         <div class="pm-label">Select Size</div>
         <div class="size-row" id="pmSizeRow">
@@ -466,6 +460,7 @@
           <div class="size-btn" data-size="M">M</div>
           <div class="size-btn" data-size="L">L</div>
           <div class="size-btn" data-size="XL">XL</div>
+          <div class="size-btn" data-size="XXL">XXL</div>
         </div>
         <div class="pm-note">
           We don't take checkout on-site — every order is placed manually through
@@ -501,6 +496,32 @@
         <button class="btn-outline" id="cartClearBtn">Clear Cart</button>
         <button class="btn-solid" id="cartDmBtn">DM All Items</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-backdrop" id="contactModal">
+  <div class="modal contact-modal">
+    <div class="modal-close" id="contactModalClose">&times;</div>
+    <h3>Get In Touch</h3>
+    <div class="contact-list">
+      <a class="contact-row" href="tel:+917019616352">
+        <span class="contact-label">Call / WhatsApp</span>
+        <span class="contact-value">+91 70196 16352</span>
+      </a>
+      <a class="contact-row" href="tel:+919902174499">
+        <span class="contact-label">Call / WhatsApp</span>
+        <span class="contact-value">+91 99021 74499</span>
+      </a>
+      <a class="contact-row" href="mailto:avenoirclothing.store@gmail.com">
+        <span class="contact-label">Email</span>
+        <span class="contact-value">avenoirclothing.store@gmail.com</span>
+      </a>
+      <a class="contact-row" href="https://www.instagram.com/avenoir_clothing?igsh=MWFnanBlMDN2bWRk" target="_blank" rel="noopener">
+        <span class="contact-label">Instagram</span>
+        <span class="contact-value">@avenoir_clothing</span>
+      </a>
     </div>
   </div>
 </div>
@@ -593,8 +614,8 @@
   const IG_DM_URL = 'https://ig.me/m/avenoir_clothing';
 
   const productData = [
-    { id:'winged-cross-hoodie', name:'Winged Cross Zip Hoodie', category:'Hoodies', img:'assets/p_winged_cross_v2.jpg', status:'Available Now' },
-    { id:'faith-in-god-tee', name:'Faith In God Tee',           category:'T-Shirts', img:'assets/p_faith_in_god_v2.jpg', status:'Available Now' },
+    { id:'winged-cross-hoodie', name:'Faith In God Tee', category:'Hoodies', img:'assets/p_winged_cross_v2.jpg', status:'Available Now', price:1200 },
+    { id:'faith-in-god-tee', name:'Winged Cross Zip Hoodie', category:'T-Shirts', img:'assets/p_faith_in_god_v2.jpg', status:'Available Now', price:2000 },
   ];
   const CAT_GRID_IDS = { 'Hoodies':'catHoodie', 'T-Shirts':'catTshirt' };
 
@@ -605,9 +626,11 @@
     const inner = p.img
       ? `<img src="${p.img}" alt="${p.name}">`
       : `${placeholderSVG}<span class="soon-tag">${p.status}</span>`;
+    const priceHTML = p.price ? `<div class="price">₹${p.price.toLocaleString('en-IN')}</div>` : '';
     return `<div class="product reveal in" data-product="${p.id}">
       <div class="${frameClass}">${inner}<span class="view-product">View Product</span></div>
       <h3>${p.name}</h3>
+      ${priceHTML}
       <div class="status">— ${p.status} —</div>
     </div>`;
   }
@@ -642,8 +665,10 @@
 
   function buildOrderMessage(items){
     const lines = ["Hi AVENOIR! I'd like to order:"];
-    items.forEach(it => lines.push(`• ${it.name} — Size ${it.size}`));
-    lines.push('', 'Could you confirm availability, pricing and how to pay? Thanks!');
+    items.forEach(it => lines.push(`• ${it.name} — Size ${it.size}${it.price ? ` — ₹${it.price.toLocaleString('en-IN')}` : ''}`));
+    const total = items.reduce((sum, it) => sum + (it.price || 0), 0);
+    if(total) lines.push('', `Total: ₹${total.toLocaleString('en-IN')}`);
+    lines.push('', 'Could you confirm availability and how to pay? Thanks!');
     return lines.join('\n');
   }
 
@@ -669,6 +694,7 @@
   const pmCat = document.getElementById('pmCat');
   const pmName = document.getElementById('pmName');
   const pmStatus = document.getElementById('pmStatus');
+  const pmPrice = document.getElementById('pmPrice');
   const pmMsg = document.getElementById('pmMsg');
   const pmSizeRow = document.getElementById('pmSizeRow');
   let currentProduct = null;
@@ -682,6 +708,7 @@
     pmMsg.textContent = '';
     pmCat.textContent = p.category;
     pmName.textContent = p.name;
+    pmPrice.textContent = p.price ? `₹${p.price.toLocaleString('en-IN')}` : '';
     pmStatus.textContent = `— ${p.status} —`;
     pmImageWrap.classList.toggle('placeholder', !p.img);
     pmImageWrap.innerHTML = p.img ? `<img src="${p.img}" alt="${p.name}">` : placeholderSVG;
@@ -708,7 +735,7 @@
   document.getElementById('pmAddCart').addEventListener('click', () => {
     if(!currentProduct) return;
     if(!selectedSize){ pmMsg.textContent = 'Please select a size first.'; return; }
-    cart.push({ id: currentProduct.id, name: currentProduct.name, size: selectedSize, img: currentProduct.img });
+    cart.push({ id: currentProduct.id, name: currentProduct.name, size: selectedSize, img: currentProduct.img, price: currentProduct.price || 0 });
     saveCart();
     pmMsg.textContent = 'Added to cart ✓';
     showToast('Added to cart');
@@ -717,7 +744,7 @@
   document.getElementById('pmDmNow').addEventListener('click', () => {
     if(!currentProduct) return;
     if(!selectedSize){ pmMsg.textContent = 'Please select a size first.'; return; }
-    const msg = buildOrderMessage([{ name: currentProduct.name, size: selectedSize }]);
+    const msg = buildOrderMessage([{ name: currentProduct.name, size: selectedSize, price: currentProduct.price || 0 }]);
     sendToInstagram(msg);
   });
 
@@ -735,10 +762,12 @@
         ${it.img ? `<img src="${it.img}" alt="">` : `<div class="ci-img-ph">${placeholderSVG}</div>`}
         <div class="ci-info">
           <div class="ci-name">${it.name}</div>
-          <div class="ci-size">Size: ${it.size}</div>
+          <div class="ci-size">Size: ${it.size}${it.price ? ` &middot; ₹${it.price.toLocaleString('en-IN')}` : ''}</div>
         </div>
         <div class="ci-remove" data-idx="${i}">&times;</div>
       </div>`).join('');
+    const total = cart.reduce((sum, it) => sum + (it.price || 0), 0);
+    cartItemsList.insertAdjacentHTML('beforeend', `<div class="cart-total">Total: ₹${total.toLocaleString('en-IN')}</div>`);
   }
 
   document.getElementById('cartTrigger').addEventListener('click', () => {
@@ -767,6 +796,18 @@
     const msg = buildOrderMessage(cart);
     sendToInstagram(msg);
   });
+
+  // ---- contact modal ----
+  const contactModal = document.getElementById('contactModal');
+  const contactTrigger = document.getElementById('contactTrigger');
+  if(contactTrigger){
+    contactTrigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      contactModal.classList.add('open');
+    });
+  }
+  document.getElementById('contactModalClose').addEventListener('click', () => contactModal.classList.remove('open'));
+  contactModal.addEventListener('click', (e) => { if(e.target === contactModal) contactModal.classList.remove('open'); });
 </script>
 </body>
 </html>
