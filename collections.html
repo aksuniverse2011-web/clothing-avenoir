@@ -233,10 +233,35 @@
 
   /* product modal */
   .pm-grid{display:grid;grid-template-columns:1fr 1fr;}
-  .pm-image{aspect-ratio:1/1;background:#0c0c0c;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-  .pm-image img{width:100%;height:100%;object-fit:cover;}
+  .pm-image{
+    aspect-ratio:1/1;background:#0c0c0c;overflow:hidden;position:relative;
+  }
   .pm-image.placeholder{display:flex;align-items:center;justify-content:center;background:linear-gradient(155deg,#1c1c1c,#050505);}
   .pm-image.placeholder svg{width:38%;height:38%;opacity:.35;stroke:var(--white);}
+
+  /* swipeable image gallery */
+  .pm-gallery-track{
+    display:flex;width:100%;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none;
+  }
+  .pm-gallery-track::-webkit-scrollbar{display:none;}
+  .pm-gallery-track .slide{flex:0 0 100%;scroll-snap-align:center;height:100%;}
+  .pm-gallery-track .slide img{width:100%;height:100%;object-fit:cover;display:block;}
+  .pm-gallery-dots{
+    position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:3;
+    display:flex;gap:6px;
+  }
+  .pm-gallery-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35);transition:background .2s ease,transform .2s ease;}
+  .pm-gallery-dots span.active{background:var(--green);transform:scale(1.3);}
+  .pm-gallery-arrow{
+    position:absolute;top:50%;transform:translateY(-50%);z-index:3;
+    width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;
+    user-select:none;transition:background .2s ease;
+  }
+  .pm-gallery-arrow:hover{background:rgba(57,255,20,.5);}
+  .pm-gallery-arrow.left{left:10px;}
+  .pm-gallery-arrow.right{right:10px;}
   .pm-body{padding:44px;}
   .pm-cat{font-size:11px;letter-spacing:.25em;color:var(--green-dim);text-transform:uppercase;}
   .pm-name{font-size:26px;margin-top:12px;text-transform:uppercase;letter-spacing:.02em;font-weight:800;}
@@ -263,7 +288,13 @@
   .btn-solid:hover{background:#2ee00f;}
   .btn-outline{background:transparent;color:var(--green);}
   .btn-outline:hover{background:rgba(57,255,20,.1);}
+  .btn-solid.disabled,.btn-outline.disabled{
+    opacity:.35;cursor:not-allowed;border-color:var(--gray);color:var(--gray);background:transparent;
+  }
+  .btn-solid.disabled:hover,.btn-outline.disabled:hover{background:transparent;}
   .pm-msg{margin-top:14px;font-size:11.5px;color:var(--green);letter-spacing:.05em;min-height:16px;}
+  .pm-status.oos{color:#ff5c5c;}
+  .product .status.oos{color:#ff5c5c;}
 
   /* cart modal */
   .cart-modal{max-width:560px;padding:44px;}
@@ -614,8 +645,9 @@
   const IG_DM_URL = 'https://ig.me/m/avenoir.lxbel';
 
   const productData = [
-    { id:'winged-cross-hoodie', name:'Faith In God Tee', category:'Hoodies', img:'assets/p_winged_cross_v2.jpg', status:'Available Now', price:1200 },
-    { id:'faith-in-god-tee', name:'Winged Cross Zip Hoodie', category:'T-Shirts', img:'assets/p_faith_in_god_v2.jpg', status:'Available Now', price:2000 },
+    { id:'winged-cross-hoodie', name:'Faith In God Tee', category:'T-Shirts', img:'assets/p_winged_cross_v2.jpg', status:'Available Now', price:1200 },
+    { id:'faith-in-god-tee', name:'Winged Cross Zip Hoodie', category:'Hoodies', img:'assets/p_faith_in_god_v2.jpg', status:'Out of Stock', price:1800 },
+    { id:'midnight-pullover-hoodie', name:'Midnight Pullover Hoodie', category:'Hoodies', img:'assets/p_hoodie_pullover_2.jpg', images:['assets/p_hoodie_pullover_2.jpg','assets/p_hoodie_pullover_1.jpg'], status:'Available Now', price:1800 },
   ];
   const CAT_GRID_IDS = { 'Hoodies':'catHoodie', 'T-Shirts':'catTshirt' };
 
@@ -627,11 +659,12 @@
       ? `<img src="${p.img}" alt="${p.name}">`
       : `${placeholderSVG}<span class="soon-tag">${p.status}</span>`;
     const priceHTML = p.price ? `<div class="price">₹${p.price.toLocaleString('en-IN')}</div>` : '';
+    const statusClass = p.status === 'Out of Stock' ? 'status oos' : 'status';
     return `<div class="product reveal in" data-product="${p.id}">
       <div class="${frameClass}">${inner}<span class="view-product">View Product</span></div>
       <h3>${p.name}</h3>
       ${priceHTML}
-      <div class="status">— ${p.status} —</div>
+      <div class="${statusClass}">— ${p.status} —</div>
     </div>`;
   }
 
@@ -700,6 +733,9 @@
   let currentProduct = null;
   let selectedSize = null;
 
+  const pmAddCartBtn = document.getElementById('pmAddCart');
+  const pmDmNowBtn = document.getElementById('pmDmNow');
+
   function openProductModal(id){
     const p = productData.find(x => x.id === id);
     if(!p) return;
@@ -710,12 +746,69 @@
     pmName.textContent = p.name;
     pmPrice.textContent = p.price ? `₹${p.price.toLocaleString('en-IN')}` : '';
     pmStatus.textContent = `— ${p.status} —`;
-    pmImageWrap.classList.toggle('placeholder', !p.img);
-    pmImageWrap.innerHTML = p.img ? `<img src="${p.img}" alt="${p.name}">` : placeholderSVG;
+    pmStatus.classList.toggle('oos', p.status === 'Out of Stock');
+
+    const images = (p.images && p.images.length) ? p.images : (p.img ? [p.img] : []);
+    pmImageWrap.classList.toggle('placeholder', images.length === 0);
+
+    if(images.length){
+      const slides = images.map(src => `<div class="slide"><img src="${src}" alt="${p.name}"></div>`).join('');
+      const dots = images.length > 1
+        ? `<div class="pm-gallery-dots" id="pmGalleryDots">${images.map((_,i)=>`<span class="${i===0?'active':''}"></span>`).join('')}</div>`
+        : '';
+      const arrows = images.length > 1
+        ? `<div class="pm-gallery-arrow left" id="pmGalleryPrev">‹</div><div class="pm-gallery-arrow right" id="pmGalleryNext">›</div>`
+        : '';
+      pmImageWrap.innerHTML = `<div class="pm-gallery-track" id="pmGalleryTrack">${slides}</div>${dots}${arrows}`;
+      setupGallery(images.length);
+    } else {
+      pmImageWrap.innerHTML = placeholderSVG;
+    }
+
+    const outOfStock = p.status === 'Out of Stock';
+    pmAddCartBtn.disabled = outOfStock;
+    pmDmNowBtn.disabled = outOfStock;
+    pmAddCartBtn.classList.toggle('disabled', outOfStock);
+    pmDmNowBtn.classList.toggle('disabled', outOfStock);
+
     pmSizeRow.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
     productModal.classList.add('open');
   }
   function closeProductModal(){ productModal.classList.remove('open'); }
+
+  // ---- swipeable image gallery (supports 1 or more photos per product) ----
+  function setupGallery(count){
+    const track = document.getElementById('pmGalleryTrack');
+    if(!track || count <= 1) return;
+    const dotsWrap = document.getElementById('pmGalleryDots');
+    const dots = dotsWrap ? Array.from(dotsWrap.children) : [];
+    const prevBtn = document.getElementById('pmGalleryPrev');
+    const nextBtn = document.getElementById('pmGalleryNext');
+
+    function setActive(i){
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+    }
+    function goTo(i){
+      i = Math.max(0, Math.min(count - 1, i));
+      track.scrollTo({ left: track.clientWidth * i, behavior: 'smooth' });
+    }
+    let scrollTimer = null;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const i = Math.round(track.scrollLeft / track.clientWidth);
+        setActive(i);
+      }, 60);
+    });
+    if(prevBtn) prevBtn.addEventListener('click', () => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      goTo(i - 1);
+    });
+    if(nextBtn) nextBtn.addEventListener('click', () => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      goTo(i + 1);
+    });
+  }
 
   document.addEventListener('click', (e) => {
     const card = e.target.closest('.product');
@@ -732,8 +825,9 @@
     selectedSize = btn.dataset.size;
   });
 
-  document.getElementById('pmAddCart').addEventListener('click', () => {
+  pmAddCartBtn.addEventListener('click', () => {
     if(!currentProduct) return;
+    if(currentProduct.status === 'Out of Stock'){ pmMsg.textContent = 'This item is currently out of stock.'; return; }
     if(!selectedSize){ pmMsg.textContent = 'Please select a size first.'; return; }
     cart.push({ id: currentProduct.id, name: currentProduct.name, size: selectedSize, img: currentProduct.img, price: currentProduct.price || 0 });
     saveCart();
@@ -741,8 +835,9 @@
     showToast('Added to cart');
   });
 
-  document.getElementById('pmDmNow').addEventListener('click', () => {
+  pmDmNowBtn.addEventListener('click', () => {
     if(!currentProduct) return;
+    if(currentProduct.status === 'Out of Stock'){ pmMsg.textContent = 'This item is currently out of stock.'; return; }
     if(!selectedSize){ pmMsg.textContent = 'Please select a size first.'; return; }
     const msg = buildOrderMessage([{ name: currentProduct.name, size: selectedSize, price: currentProduct.price || 0 }]);
     sendToInstagram(msg);
